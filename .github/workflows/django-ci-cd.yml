@@ -29,8 +29,10 @@ jobs:
 
       - name: Run Django migrations
         run: |
+          cd backend
           python manage.py migrate
 
       - name: Run tests
         run: |
+          cd backend
           python manage.py test
