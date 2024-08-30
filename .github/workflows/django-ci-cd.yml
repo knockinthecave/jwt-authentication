@@ -33,6 +33,8 @@ jobs:
           python manage.py migrate
 
       - name: Run tests
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           cd backend
           python manage.py test
