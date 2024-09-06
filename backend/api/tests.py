@@ -8,12 +8,12 @@ from django.contrib.auth.models import User
 class JWTAuthenticationTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser',
-                                             password='testpassword'
-                                             )
+        self.user = User.objects.create_user(
+            username="testuser", password="testpassword"
+        )
         # urls.py에 정의된 URL을 사용하여 URL을 가져옵니다.
-        self.token_url = reverse('token_obtain_pair')
-        self.protected_url = reverse('protected_view')
+        self.token_url = reverse("token_obtain_pair")
+        self.protected_url = reverse("protected_view")
 
     # TestCase1
     # JWT 토큰이 정상적으로 발급되는지 테스트
@@ -21,35 +21,33 @@ class JWTAuthenticationTests(TestCase):
         """
         JWT 토큰을 정상적으로 발급받을 수 있는지 테스트합니다.
         """
-        response = self.client.post(self.token_url, {
-            'username': 'testuser',
-            'password': 'testpassword'
-        })
+        response = self.client.post(
+            self.token_url, {"username": "testuser", "password": "testpassword"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
-        self.assertIn('refresh', response.data)
-        self.access_token = response.data['access']
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+        self.access_token = response.data["access"]
 
     def test_access_protected_view_with_jwt(self):
         """
         발급받은 JWT 토큰을 사용하여 보호된 뷰에 접근할 수 있는지 테스트합니다.
         """
         # 먼저 JWT 토큰을 발급받습니다.
-        response = self.client.post(self.token_url, {
-            'username': 'testuser',
-            'password': 'testpassword'
-        })
+        response = self.client.post(
+            self.token_url, {"username": "testuser", "password": "testpassword"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        access_token = response.data['access']
+        access_token = response.data["access"]
 
         # 발급받은 토큰을 사용하여 보호된 뷰에 접근합니다.
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
         response = self.client.get(self.protected_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-             response.data['message'],
-             'This is a protected view. You have been authenticated.'
-          )
+            response.data["message"],
+            "This is a protected view. You have been authenticated.",
+        )
 
     def test_access_protected_view_without_jwt(self):
         """
